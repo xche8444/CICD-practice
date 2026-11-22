@@ -5,7 +5,7 @@ client = app.test_client()
 def test_home():
     r = client.get("/")
     assert r.status_code == 200
-    assert b"Hello CD" in r.data
+    assert b"Hello v2" in r.data
 
 def test_add():
     r = client.get("/add/2/3")
