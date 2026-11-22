@@ -1,0 +1,28 @@
+name: Rollback production
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Commit SHA (image tag) to roll back to"
+        required: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Redeploy older image to production
+        env:
+          REGION: ${{ vars.AWS_REGION }}
+          IID: ${{ vars.EC2_INSTANCE_ID }}
+          TAG: ${{ inputs.sha }}
+        run: ./scripts/deploy.sh app 8000 "$TAG"
